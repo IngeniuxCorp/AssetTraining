@@ -45,15 +45,15 @@
   <ItemGroup>
     <Reference Include="Ingeniux.CMS.Common">
       <HintPath>..\..\..\..\bin\Ingeniux.CMS.Common.dll</HintPath>
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Ingeniux.CMS.CSAPI">
       <HintPath>..\..\..\..\bin\Ingeniux.CMS.CSAPI.dll</HintPath>
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Ingeniux.CMS.Models">
       <HintPath>..\..\..\..\bin\Ingeniux.CMS.Models.dll</HintPath>
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.AspNet.SignalR.Core">
       <HintPath>..\..\..\..\bin\Microsoft.AspNet.SignalR.Core.dll</HintPath>

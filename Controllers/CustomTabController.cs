@@ -6,6 +6,7 @@ using System.ComponentModel.Composition;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Routing;
 using v10CustomTabBase.Models;
 
 namespace v10CustomTabBase.Controllers
@@ -24,9 +25,11 @@ namespace v10CustomTabBase.Controllers
 		public IUserWriteSession UserSession;
 		public CustomMessenger Messenger;
 
-		#region Constructors and helpers
-		public CustomTabController():base()
+		#region Initialize and helpers
+
+		protected override void Initialize(RequestContext requestContext)
 		{
+			base.Initialize(requestContext);
 			UserSession = _Common.ContentStore.OpenWriteSession(_Common.CurrentUser);
 			Messenger = new CustomMessenger(UserSession, HEADER_VALUE);
 		}
@@ -34,7 +37,7 @@ namespace v10CustomTabBase.Controllers
 		protected override void Dispose(bool disposing)
 		{
 			base.Dispose(disposing);
-			if(UserSession != null && !UserSession.Closed)
+			if (UserSession != null && !UserSession.Closed)
 			{
 				UserSession.Dispose();
 			}
