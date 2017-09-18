@@ -10,6 +10,9 @@ using v10CustomTabBase.Models;
 
 namespace v10CustomTabBase.Controllers
 {
+	//TIP: delete 'fcnMode="Disabled"' from the site's web config
+	//this will make it so you can make view changes without recycling app pool
+	//only do this when developing, do not remove it for production
 	[Export(typeof(CMSControllerBase))]
 	//This value is always the name of the controller.
 	[ExportMetadata("controller", "CustomTabController")]
@@ -20,7 +23,6 @@ namespace v10CustomTabBase.Controllers
 		public const string HEADER_VALUE = "CustomTabHeader";
 		public IUserWriteSession UserSession;
 		public CustomMessenger Messenger;
-
 
 		#region Constructors and helpers
 		public CustomTabController():base()

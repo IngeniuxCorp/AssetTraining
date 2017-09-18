@@ -9,10 +9,12 @@ using System.Web;
 
 namespace v10CustomTabBase.Models
 {
+	public class CustomTabMessenger : MessengerBase { }
+
 	public class CustomMessenger
 	{
 		private IUserWriteSession _Session;
-		private PushMessenger _Messenger;
+		private PushMessenger<CustomTabMessenger> _Messenger;
 		private string _Header;
 		private JsonSerializer _serializer = new JsonSerializer();
 
@@ -21,7 +23,7 @@ namespace v10CustomTabBase.Models
 		public CustomMessenger(IUserWriteSession session, string messageHeader)
 		{
 			_Session = session;
-			_Messenger = new PushMessenger(_Session);
+			_Messenger = new PushMessenger<CustomTabMessenger>(_Session);
 			_Header = messageHeader ?? string.Empty;
 		}
 
