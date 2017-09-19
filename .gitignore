@@ -243,3 +243,6 @@ ModelManifest.xml
 *.js.map
 /src/app/*.js
 /src/main.js
+/aot/src/app
+/src/build.js
+/src/main - jit.js

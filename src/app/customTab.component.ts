@@ -5,7 +5,7 @@ import { MdToolbarModule } from '@angular/material';
 @Component({
 	selector: 'custom-tab',
 	templateUrl: './templates/customTab.html',
-	styleUrls: ['app/styles/customTab.css'],
+	//styleUrls: ['app/styles/customTab.css'],
 	providers: [SignalRService]
 })
 export class CustomTab {

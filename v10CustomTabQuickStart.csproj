@@ -115,6 +115,7 @@
     <TypeScriptCompile Include="src\app\customTab.component.ts" />
     <TypeScriptCompile Include="src\app\customTabApp.module.ts" />
     <TypeScriptCompile Include="src\app\signalR.service.ts" />
+    <Content Include="rollup-config.js" />
     <Content Include="src\app\styles\customTab.css" />
     <Content Include="src\app\templates\customTab.html" />
     <Content Include="src\favicon.ico" />
@@ -123,6 +124,7 @@
     <Content Include="src\systemjs.config.extras.js" />
     <Content Include="src\systemjs.config.js" />
     <Content Include="Web.config" />
+    <TypeScriptCompile Include="src\main - jit.ts" />
     <TypeScriptCompile Include="src\main.ts" />
   </ItemGroup>
   <ItemGroup>
@@ -143,6 +145,7 @@
     <Content Include="tslint.json" />
     <Content Include="src\tsconfig.json" />
     <Content Include="bs-config.json" />
+    <Content Include="tsconfig-aot.json" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
