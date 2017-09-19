@@ -1,17 +1,33 @@
-﻿@{
-    Layout = null;
+﻿<!DOCTYPE html>
+@{
+	string currentURL = Request.Url.GetLeftPart(UriPartial.Path).ToString();
 }
+	<html>
+	<head>
+		@*"~/AppAsset/{ProjectFolder}" is the route for serving project files in the custom folder*@
+		<title>Custom tab QuickStart</title>
+		<base href="~/AppAsset/v10CustomTabBase/src/">
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="styles.css">
+		
+		<link rel="stylesheet" href="~/AppAsset/v10CustomTabBase/node_modules/@("@")angular/material/prebuilt-themes/indigo-pink.css">
 
-<!DOCTYPE html>
+		<!-- Polyfill(s) for older browsers -->
+		<script src="~/AppAsset/v10CustomTabBase/node_modules/core-js/client/shim.min.js"></script>
+		<script src="~/AppAsset/v10CustomTabBase/node_modules/zone.js/dist/zone.js"></script>
+		<script src="~/AppAsset/v10CustomTabBase/node_modules/systemjs/dist/system.src.js"></script>
+		<script src="~/AppAsset/v10CustomTabBase/src/systemjs.config.js"></script>
 
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>Custom Tab</title>
-</head>
-<body>
-    <div>
-		Custom Tab
-    </div>
-</body>
+		<script src="~/AppAsset/v10CustomTabBase/node_modules/jquery/dist/jquery.min.js"></script>
+		<script src="~/AppAsset/v10CustomTabBase/node_modules/signalr/jquery.signalR.js"></script>
+		<script language="javascript" src="~/signalr/hubs"></script>
+
+		<script>
+			System.import('main.js').catch(function(err){ console.error(err); });
+		</script>
+	</head>
+	<body>
+		<custom-tab BaseURL="@currentURL">Loading AppComponent content here ...</custom-tab>
+	</body>
 </html>

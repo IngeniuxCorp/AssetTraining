@@ -240,3 +240,6 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
+*.js.map
+/src/app/*.js
+/src/main.js
