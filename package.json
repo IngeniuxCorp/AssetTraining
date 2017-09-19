@@ -1,8 +1,8 @@
 {
-	"name": "my-app",
-	"version": "0.0.0",
+	"name": "customtab-quickstart",
+	"version": "1.0.0",
 	"license": "MIT",
-	"description": "quick start for CMS custom tab dev",
+	"description": "Quick start project for CMS custom tab dev",
 	"scripts": {
 	},
 	"private": true,
