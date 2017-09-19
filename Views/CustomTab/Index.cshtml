@@ -1,6 +1,7 @@
 ﻿<!DOCTYPE html>
 @{
 	string currentURL = Request.Url.GetLeftPart(UriPartial.Path).ToString();
+	string hubsPath = VirtualPathUtility.ToAbsolute("~/signalr/hubs", Context.Request.ApplicationPath);
 }
 	<html>
 	<head>
@@ -16,19 +17,28 @@
 		<!-- Polyfill(s) for older browsers -->
 		<script src="~/AppAsset/v10CustomTabBase/node_modules/core-js/client/shim.min.js"></script>
 		<script src="~/AppAsset/v10CustomTabBase/node_modules/zone.js/dist/zone.js"></script>
-		@*<script src="~/AppAsset/v10CustomTabBase/node_modules/systemjs/dist/system.src.js"></script>
-		<script src="~/AppAsset/v10CustomTabBase/src/systemjs.config.js"></script>*@
-
-		<script src="~/AppAsset/v10CustomTabBase/node_modules/jquery/dist/jquery.min.js"></script>
-		<script src="~/AppAsset/v10CustomTabBase/node_modules/signalr/jquery.signalR.js"></script>
-		<script language="javascript" src="~/signalr/hubs"></script>
-		
-		@*<script>
-			System.import('main.js').catch(function(err){ console.error(err); });
-		</script>*@
 	</head>
 	<body>
 		<custom-tab BaseURL="@currentURL">Loading AppComponent content here ...</custom-tab>
+		
+		@if (Model.IsDebug)
+		{
+			<script src="~/AppAsset/v10CustomTabBase/node_modules/systemjs/dist/system.src.js"></script>
+			<script src="~/AppAsset/v10CustomTabBase/src/systemjs.config.js"></script>
+			<script>
+				System.import('main-jit.js').catch(function (err) { console.error(err); })
+				.then(function () {
+					return System.import('@hubsPath');
+				});
+			</script>
+			@*<script language="javascript" src="~/signalr/hubs"></script>*@
+		}
+		else
+		{
+			<script src="build.js"></script>
+			<script language="javascript" src="~/signalr/hubs"></script>
+		}
+
+		
 	</body>
-	<script src="build.js"></script>
 </html>

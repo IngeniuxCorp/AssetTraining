@@ -118,13 +118,14 @@
     <Content Include="rollup-config.js" />
     <Content Include="src\app\styles\customTab.css" />
     <Content Include="src\app\templates\customTab.html" />
+    <Content Include="src\build.js" />
     <Content Include="src\favicon.ico" />
     <Content Include="src\styles.css" />
     <Content Include="src\systemjs-angular-loader.js" />
     <Content Include="src\systemjs.config.extras.js" />
     <Content Include="src\systemjs.config.js" />
     <Content Include="Web.config" />
-    <TypeScriptCompile Include="src\main - jit.ts" />
+    <TypeScriptCompile Include="src\main-jit.ts" />
     <TypeScriptCompile Include="src\main.ts" />
   </ItemGroup>
   <ItemGroup>
@@ -135,6 +136,7 @@
     </Compile>
     <Compile Include="Models\CustomMessage.cs" />
     <Compile Include="Models\CustomMessenger.cs" />
+    <Compile Include="Models\CustomTabModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -192,6 +194,11 @@
     <Error Condition="!Exists('.\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props')" Text="$([System.String]::Format('$(ErrorText)', '.\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props'))" />
     <Error Condition="!Exists('.\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.0\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', '.\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.0\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
   </Target>
+  <PropertyGroup>
+    <PreBuildEvent>if $(ConfigurationName) == Release (
+npm run build:aot
+)</PreBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

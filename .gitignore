@@ -246,3 +246,4 @@ ModelManifest.xml
 /aot/src/app
 /src/build.js
 /src/main - jit.js
+/src/main-jit.js

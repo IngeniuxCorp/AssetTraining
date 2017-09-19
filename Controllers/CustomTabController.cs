@@ -8,6 +8,7 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 using v10CustomTabBase.Models;
+using v10CustomTabQuickStart.Models;
 
 namespace v10CustomTabBase.Controllers
 {
@@ -47,7 +48,15 @@ namespace v10CustomTabBase.Controllers
 		// GET: CustomTab
 		public ActionResult Index()
         {
-            return View();
+			bool isDebug = true;
+#if DEBUG
+			isDebug = true;
+#else
+			isDebug = false;
+#endif
+			var model = new CustomTabModel(_Common);
+			model.IsDebug = isDebug;
+			return View(model);
         }
     }
 }
