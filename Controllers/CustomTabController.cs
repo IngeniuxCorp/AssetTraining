@@ -48,13 +48,14 @@ namespace v10CustomTabBase.Controllers
 		// GET: CustomTab
 		public ActionResult Index()
         {
+			
 			bool isDebug = true;
 #if DEBUG
 			isDebug = true;
 #else
 			isDebug = false;
 #endif
-			var model = new CustomTabModel(_Common);
+			var model = new CustomTabModel(_Common, HttpContext);
 			model.IsDebug = isDebug;
 			return View(model);
         }

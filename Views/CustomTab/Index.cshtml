@@ -1,28 +1,26 @@
 ﻿<!DOCTYPE html>
 @{
-	string currentURL = Request.Url.GetLeftPart(UriPartial.Path).ToString();
-	string hubsPath = VirtualPathUtility.ToAbsolute("~/signalr/hubs", Context.Request.ApplicationPath);
+	string basePath = Model.AssetPath+"/src/";
 }
 	<html>
 	<head>
 		@*"~/AppAsset/{ProjectFolder}" is the route for serving project files in the custom folder*@
 		<title>Custom tab QuickStart</title>
-		<base href="~/AppAsset/v10CustomTabBase/src/">
+		<base href="@basePath">
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<link rel="stylesheet" href="styles.css">
 		@if (Model.IsDebug)
 		{
-		<link rel="stylesheet" href="~/AppAsset/v10CustomTabBase/node_modules/@("@")angular/material/prebuilt-themes/indigo-pink.css">
+			<link rel="stylesheet" href="~/AppAsset/v10CustomTabBase/node_modules/@("@")angular/material/prebuilt-themes/indigo-pink.css">
 		}
 		else
 		{
-			<link rel="stylesheet" href="~/AppAsset/v10CustomTabBase/Content/Styles/indigo-pink.css">
+			<link rel="stylesheet" href="@Model.AssetPath/Content/Styles/indigo-pink.css">
 		}
 	</head>
 	<body>
-		<custom-tab BaseURL="@currentURL">Loading AppComponent content here ...</custom-tab>
-		
+		<custom-tab BaseURL="@Model.CurrentURL">Loading AppComponent content here ...</custom-tab>
 		@if (Model.IsDebug)
 		{
 			<!-- Polyfill(s) for older browsers -->
@@ -34,7 +32,7 @@
 			<script>
 				System.import('main-jit.js').catch(function (err) { console.error(err); })
 				.then(function () {
-					return System.import('@hubsPath');
+					return System.import('@Model.HubsPath');
 				});
 			</script>
 		}
