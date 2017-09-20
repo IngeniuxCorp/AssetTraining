@@ -11,18 +11,24 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<link rel="stylesheet" href="styles.css">
-		
+		@if (Model.IsDebug)
+		{
 		<link rel="stylesheet" href="~/AppAsset/v10CustomTabBase/node_modules/@("@")angular/material/prebuilt-themes/indigo-pink.css">
-
-		<!-- Polyfill(s) for older browsers -->
-		<script src="~/AppAsset/v10CustomTabBase/node_modules/core-js/client/shim.min.js"></script>
-		<script src="~/AppAsset/v10CustomTabBase/node_modules/zone.js/dist/zone.js"></script>
+		}
+		else
+		{
+			<link rel="stylesheet" href="~/AppAsset/v10CustomTabBase/Content/Styles/indigo-pink.css">
+		}
 	</head>
 	<body>
 		<custom-tab BaseURL="@currentURL">Loading AppComponent content here ...</custom-tab>
 		
 		@if (Model.IsDebug)
 		{
+			<!-- Polyfill(s) for older browsers -->
+			<script src="~/AppAsset/v10CustomTabBase/node_modules/core-js/client/shim.min.js"></script>
+
+			<script src="~/AppAsset/v10CustomTabBase/node_modules/zone.js/dist/zone.js"></script>
 			<script src="~/AppAsset/v10CustomTabBase/node_modules/systemjs/dist/system.src.js"></script>
 			<script src="~/AppAsset/v10CustomTabBase/src/systemjs.config.js"></script>
 			<script>
@@ -31,14 +37,12 @@
 					return System.import('@hubsPath');
 				});
 			</script>
-			@*<script language="javascript" src="~/signalr/hubs"></script>*@
 		}
 		else
 		{
+			<script src="modules.js"></script>
 			<script src="build.js"></script>
 			<script language="javascript" src="~/signalr/hubs"></script>
 		}
-
-		
 	</body>
 </html>
