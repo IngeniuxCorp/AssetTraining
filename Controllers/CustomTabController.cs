@@ -61,28 +61,36 @@ namespace v10CustomTabBase.Controllers
 		public async Task<ActionResult> Test()
 		{
 			var model = new CustomTabModel(_Common, HttpContext);
+			GraphServiceClient graphClient = null;
 			try
 			{
-				GraphServiceClient graphClient = new GraphServiceClient(
+				graphClient = new GraphServiceClient(
 					new DelegateAuthenticationProvider(
 						async (requestMessage) =>
 						{
 							TokenProvider provider = new TokenProvider(_Common, HttpContext);
 							string accessToken = await provider.GetUserAccessTokenAsync();
 
-						// Append the access token to the request.
-						requestMessage.Headers.Authorization = new AuthenticationHeaderValue("bearer", accessToken);
+							// Append the access token to the request.
+							requestMessage.Headers.Authorization = new AuthenticationHeaderValue("bearer", accessToken);
 						}));
-
 				Microsoft.Graph.User me = await graphClient.Me.Request().Select("mail,userPrincipalName").GetAsync();
-				model.Message = me.Mail ?? me.UserPrincipalName;
-				return View(model);
 			}
 			catch
 			{
-				model.Message = "please login";
+				model.Message = "Please Login";
 				return View(model);
 			}
+
+			if(graphClient == null)
+			{
+				model.Message = "Graph is null";
+				return View(model);
+			}
+
+			var driveChildren = await graphClient.Me.Drive.Root.Children.Request().GetAsync();
+			model.Message = driveChildren.Select(c => c.Name).Aggregate((cur, next) => $"{cur},{next}");
+			return View(model);
 		}
     }
 }

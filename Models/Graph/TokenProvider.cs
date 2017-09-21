@@ -13,6 +13,7 @@ using Microsoft.Owin.Security;
 using System.Net.Http;
 using Newtonsoft.Json;
 using IdentityModel;
+using Microsoft.Graph;
 
 namespace v10CustomTabQuickStart.Models.Graph
 {
@@ -124,7 +125,12 @@ namespace v10CustomTabQuickStart.Models.Graph
 					redirectUri: redirectUri,
 					state: $"{state}{_UserId}");
 				_Context.Response.Redirect(url, false);
-				throw new Exception("No user token");
+				throw new ServiceException(
+					new Error
+					{
+						Code = GraphErrorCode.AuthenticationFailure.ToString(),
+						Message = "Caller needs to authenticate.",
+					});
 			}
 		}
 	}
