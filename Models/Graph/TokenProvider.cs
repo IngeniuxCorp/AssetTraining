@@ -36,33 +36,28 @@ namespace v10CustomTabQuickStart.Models.Graph
 
 		public bool SaveUserAccessCode()
 		{
-			string userId = Common.CurrentUser.UserId;
-			SessionTokenCache sessionCache = new SessionTokenCache(userId, _Context);
-			string stateString = sessionCache.ReadUserStateValue();
-
-			var request = new AuthorizeRequest(MS_AUTHENDPOINT);
-			var url = request.CreateAuthorizeUrl(
-					clientId: appId,
-					responseType: OidcConstants.ResponseTypes.Code,
-					responseMode: OidcConstants.ResponseModes.FormPost,
-					scope: scopes,
-					redirectUri: redirectUri,
-					state: $"{stateString}{userId}");
-
-			var response = new AuthorizeResponse(url);
-
-			string code = response.Code;
-			string responseState = response.State;
-
-
-			if (!string.IsNullOrWhiteSpace(responseState) && responseState == $"{stateString}{userId}")
+			try
 			{
-				sessionCache.SaveUserCodeValue(code);
-			}else if(!string.IsNullOrWhiteSpace(responseState))
+				string userId = Common.CurrentUser.UserId;
+				SessionTokenCache sessionCache = new SessionTokenCache(userId, _Context);
+				string stateString = sessionCache.ReadUserStateValue();
+
+				var code = _Context.Request.Form["code"];
+				var responseState = _Context.Request.Form["state"];
+
+				if (!string.IsNullOrWhiteSpace(responseState) && responseState == $"{stateString}{userId}")
+				{
+					sessionCache.SaveUserCodeValue(code);
+				}
+				else if (!string.IsNullOrWhiteSpace(responseState))
+				{
+					throw new Exception("Invalid state response");
+				}
+				return true;
+			}catch(Exception e)
 			{
-				throw new Exception("Invalid state response");
+				return false;
 			}
-			return true;
 		}
 
 		public async Task<string> GetUserAccessTokenAsync()
@@ -70,82 +65,49 @@ namespace v10CustomTabQuickStart.Models.Graph
 			string userId = Common.CurrentUser.UserId;
 			SessionTokenCache sessionCache = new SessionTokenCache(userId, _Context);
 			string token = sessionCache.ReadUserTokenValue();
-			if (!string.IsNullOrWhiteSpace(token))
+			DateTime expiredTime = sessionCache.ReadTokenExpirationValue();
+			if (!string.IsNullOrWhiteSpace(token) && DateTime.Now < expiredTime)
 			{
 				return token;
 			}
+
 			try
-			{
-				Dictionary<string, string> values;
-				
+			{				
+				var tclient = new TokenClient(
+					MS_TOKENENDPOINT,
+					appId,
+					appSecret,
+					AuthenticationStyle.PostValues);
 
-				//using (var client = new HttpClient())
-				//{
-					var tclient = new TokenClient(
-						MS_TOKENENDPOINT,
-						appId,
-						appSecret);
-
-					string refreshToken = sessionCache.ReadUserRefreshValue();
+				string refreshToken = sessionCache.ReadUserRefreshValue();
+				TokenResponse tokenResp;
+				if (!string.IsNullOrWhiteSpace(refreshToken))
+				{
+					tokenResp = await tclient.RequestRefreshTokenAsync(refreshToken, extra: new
+					{
+						scopes = scopes,
+						redirect_uri = redirectUri
+					});
+				}
+				else
+				{
 					string code = sessionCache.ReadUserCodeValue();
-					TokenResponse tokenResp;
-					if (!string.IsNullOrWhiteSpace(refreshToken))
+					tokenResp = await tclient.RequestAuthorizationCodeAsync(code, redirectUri, extra: new
 					{
-						//values = new Dictionary<string, string>
-						//{
-						//	{ "client_id", appId},
-						//	{ "refresh_token", refreshToken},
-						//	{ "scope", scopes},
-						//	{ "redirect_uri", redirectUri},
-						//	{ "grant_type", "refresh_token"},
-						//	{ "client_secret", appSecret}
-						//};
-						tokenResp = await tclient.RequestRefreshTokenAsync(refreshToken, extra: new
-						{
-							scopes = scopes,
-							redirect_uri = redirectUri
-						});
-					}
-					else
-					{
-						tokenResp = await tclient.RequestAuthorizationCodeAsync(code, redirectUri, extra: new
-						{
-							scopes = scopes
-						});
-						//values = new Dictionary<string, string>
-						//{
-						//	{ "client_id", appId},
-						//	{ "code", code},
-						//	{ "scope", scopes},
-						//	{ "redirect_uri", redirectUri},
-						//	{ "grant_type", "authorization_code"},
-						//	{ "client_secret", appSecret}
-						//};
-					}
+						scopes = scopes,
+					});
+				}
 
+				if (tokenResp.IsError)
+				{
+					throw new Exception("Token request failed");
+				}else
+				{
+					sessionCache.SaveUserTokenValue(tokenResp.AccessToken, DateTime.Now.AddSeconds(tokenResp.ExpiresIn));
+					sessionCache.SaveUserRefreshValue(tokenResp.RefreshToken);
+				}
 
-
-
-					//var content = new FormUrlEncodedContent(values);
-
-					//var response = await client.PostAsync(MS_TOKENENDPOINT, content);
-
-					//if (!response.IsSuccessStatusCode)
-					//{
-					//	throw new Exception("Token request failed");
-					//}
-
-					//var tokenString = await response.Content.ReadAsStringAsync();
-
-					//var obj = JsonConvert.DeserializeObject(tokenString);
-
-					if (tokenResp.IsError)
-					{
-						throw new Exception("Token request failed");
-					}
-
-					return tokenResp.AccessToken;
-				//}
+				return tokenResp.AccessToken;
 			}
 			catch (Exception e)
 			{

@@ -58,6 +58,7 @@ namespace v10CustomTabBase.Controllers
 
 		public async Task<ActionResult> Test()
 		{
+			System.Diagnostics.Debugger.Launch();
 			TokenProvider provider = new TokenProvider(_Common, HttpContext);
 			provider.SaveUserAccessCode();
 			string token = await provider.GetUserAccessTokenAsync();
