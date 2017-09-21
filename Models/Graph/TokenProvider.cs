@@ -25,29 +25,31 @@ namespace v10CustomTabQuickStart.Models.Graph
 		private HttpContextBase _Context;
 		private const string MS_AUTHENDPOINT = "https://login.microsoftonline.com/common/oauth2/v2.0/authorize";
 		private const string MS_TOKENENDPOINT = "https://login.microsoftonline.com/common/oauth2/v2.0/token";
-
+		private SessionTokenCache _SessionCache;
+		private string _UserId;
 		public CMS_Common Common { get; private set; }
 
 		public TokenProvider(CMS_Common common, HttpContextBase context)
 		{
 			Common = common;
 			_Context = context;
+			_UserId = Common.CurrentUser.UserId;
+			_SessionCache = new SessionTokenCache(_UserId, _Context);
+			_SaveUserAccessCode();
 		}
 
-		public bool SaveUserAccessCode()
+		private bool _SaveUserAccessCode()
 		{
 			try
 			{
-				string userId = Common.CurrentUser.UserId;
-				SessionTokenCache sessionCache = new SessionTokenCache(userId, _Context);
-				string stateString = sessionCache.ReadUserStateValue();
+				string stateString = _SessionCache.ReadUserStateValue();
 
 				var code = _Context.Request.Form["code"];
 				var responseState = _Context.Request.Form["state"];
 
-				if (!string.IsNullOrWhiteSpace(responseState) && responseState == $"{stateString}{userId}")
+				if (!string.IsNullOrWhiteSpace(responseState) && responseState == $"{stateString}{_UserId}")
 				{
-					sessionCache.SaveUserCodeValue(code);
+					_SessionCache.SaveUserCodeValue(code);
 				}
 				else if (!string.IsNullOrWhiteSpace(responseState))
 				{
@@ -62,10 +64,8 @@ namespace v10CustomTabQuickStart.Models.Graph
 
 		public async Task<string> GetUserAccessTokenAsync()
 		{
-			string userId = Common.CurrentUser.UserId;
-			SessionTokenCache sessionCache = new SessionTokenCache(userId, _Context);
-			string token = sessionCache.ReadUserTokenValue();
-			DateTime expiredTime = sessionCache.ReadTokenExpirationValue();
+			string token = _SessionCache.ReadUserTokenValue();
+			DateTime expiredTime = _SessionCache.ReadTokenExpirationValue();
 			if (!string.IsNullOrWhiteSpace(token) && DateTime.Now < expiredTime)
 			{
 				return token;
@@ -79,7 +79,7 @@ namespace v10CustomTabQuickStart.Models.Graph
 					appSecret,
 					AuthenticationStyle.PostValues);
 
-				string refreshToken = sessionCache.ReadUserRefreshValue();
+				string refreshToken = _SessionCache.ReadUserRefreshValue();
 				TokenResponse tokenResp;
 				if (!string.IsNullOrWhiteSpace(refreshToken))
 				{
@@ -91,7 +91,7 @@ namespace v10CustomTabQuickStart.Models.Graph
 				}
 				else
 				{
-					string code = sessionCache.ReadUserCodeValue();
+					string code = _SessionCache.ReadUserCodeValue();
 					tokenResp = await tclient.RequestAuthorizationCodeAsync(code, redirectUri, extra: new
 					{
 						scopes = scopes,
@@ -103,8 +103,8 @@ namespace v10CustomTabQuickStart.Models.Graph
 					throw new Exception("Token request failed");
 				}else
 				{
-					sessionCache.SaveUserTokenValue(tokenResp.AccessToken, DateTime.Now.AddSeconds(tokenResp.ExpiresIn));
-					sessionCache.SaveUserRefreshValue(tokenResp.RefreshToken);
+					_SessionCache.SaveUserTokenValue(tokenResp.AccessToken, DateTime.Now.AddSeconds(tokenResp.ExpiresIn));
+					_SessionCache.SaveUserRefreshValue(tokenResp.RefreshToken);
 				}
 
 				return tokenResp.AccessToken;
@@ -112,7 +112,8 @@ namespace v10CustomTabQuickStart.Models.Graph
 			catch (Exception e)
 			{
 				var state = Guid.NewGuid().ToString("N");
-				sessionCache.SaveUserStateValue(state);
+				_SessionCache.SaveUserStateValue(state);
+				var test = _SessionCache.ReadUserStateValue();
 
 				var request = new AuthorizeRequest(MS_AUTHENDPOINT);
 				var url = request.CreateAuthorizeUrl(
@@ -121,9 +122,9 @@ namespace v10CustomTabQuickStart.Models.Graph
 					responseMode: OidcConstants.ResponseModes.FormPost,
 					scope: scopes,
 					redirectUri: redirectUri,
-					state: $"{state}{userId}");
-				_Context.Response.Redirect(url);
-				throw new Exception("Unable to obtain token.");
+					state: $"{state}{_UserId}");
+				_Context.Response.Redirect(url, false);
+				throw new Exception("No user token");
 			}
 		}
 	}

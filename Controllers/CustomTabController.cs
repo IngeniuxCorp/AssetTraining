@@ -1,9 +1,11 @@
 ﻿using Ingeniux.CMS;
 using Ingeniux.CMS.Models.Messaging;
+using Microsoft.Graph;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -58,13 +60,29 @@ namespace v10CustomTabBase.Controllers
 
 		public async Task<ActionResult> Test()
 		{
-			System.Diagnostics.Debugger.Launch();
-			TokenProvider provider = new TokenProvider(_Common, HttpContext);
-			provider.SaveUserAccessCode();
-			string token = await provider.GetUserAccessTokenAsync();
 			var model = new CustomTabModel(_Common, HttpContext);
-			model.Message = token;
-			return View(model);
+			try
+			{
+				GraphServiceClient graphClient = new GraphServiceClient(
+					new DelegateAuthenticationProvider(
+						async (requestMessage) =>
+						{
+							TokenProvider provider = new TokenProvider(_Common, HttpContext);
+							string accessToken = await provider.GetUserAccessTokenAsync();
+
+						// Append the access token to the request.
+						requestMessage.Headers.Authorization = new AuthenticationHeaderValue("bearer", accessToken);
+						}));
+
+				Microsoft.Graph.User me = await graphClient.Me.Request().Select("mail,userPrincipalName").GetAsync();
+				model.Message = me.Mail ?? me.UserPrincipalName;
+				return View(model);
+			}
+			catch
+			{
+				model.Message = "please login";
+				return View(model);
+			}
 		}
     }
 }

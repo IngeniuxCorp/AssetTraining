@@ -61,9 +61,9 @@ namespace v10CustomTabQuickStart.Models.Graph
 
 		public DateTime ReadTokenExpirationValue()
 		{
-			DateTime expiration = DateTime.MinValue;
+			//DateTime expiration = DateTime.MinValue;
 			SessionLock.EnterReadLock();
-			expiration = (DateTime)httpContext.Session[$"{CacheId}_expiration"];
+			DateTime expiration = (DateTime)(httpContext.Session[$"{CacheId}_expiration"] ?? DateTime.MinValue);
 			SessionLock.ExitReadLock();
 			return expiration;
 		}
