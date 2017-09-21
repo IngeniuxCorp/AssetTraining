@@ -50,13 +50,18 @@ namespace v10CustomTabQuickStart.Models
 		private DirectoryInfo _BaseFolder { get; set; }
 		private HttpContextBase _Context { get; set; }
 		public string Message { get; set; }
+		public bool HasToken { get; set; }
 		public CustomTabModel(CMS_Common common, HttpContextBase context)
 		{
 			
 			_Context = context;
 
 			string path = _Context.Server.MapPath(".");
-			_BaseFolder = new DirectoryInfo(path);
+
+			var file = new FileInfo(System.Reflection.Assembly.GetExecutingAssembly().Location);
+			var binFolder = file.Directory;
+			var baseFolder = binFolder.Parent;
+			_BaseFolder = baseFolder;
 
 			Common = common;
 		}
