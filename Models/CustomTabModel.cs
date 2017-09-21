@@ -9,7 +9,14 @@ namespace v10CustomTabQuickStart.Models
 {
 	public class CustomTabModel
 	{
-		public bool IsDebug = false;
+		public bool IsDebug { get {
+				#if DEBUG
+					return true;
+				#else
+					return false;
+				#endif
+			}
+		}
 		public CMS_Common Common { get; private set; }
 		public string FolderName {
 			get{
@@ -42,6 +49,7 @@ namespace v10CustomTabQuickStart.Models
 
 		private DirectoryInfo _BaseFolder { get; set; }
 		private HttpContextBase _Context { get; set; }
+		public string Message { get; set; }
 		public CustomTabModel(CMS_Common common, HttpContextBase context)
 		{
 			

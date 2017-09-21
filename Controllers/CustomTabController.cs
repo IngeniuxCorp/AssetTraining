@@ -4,11 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 using v10CustomTabBase.Models;
 using v10CustomTabQuickStart.Models;
+using v10CustomTabQuickStart.Models.Graph;
 
 namespace v10CustomTabBase.Controllers
 {
@@ -49,15 +51,19 @@ namespace v10CustomTabBase.Controllers
 		public ActionResult Index()
         {
 			
-			bool isDebug = true;
-#if DEBUG
-			isDebug = true;
-#else
-			isDebug = false;
-#endif
+
 			var model = new CustomTabModel(_Common, HttpContext);
-			model.IsDebug = isDebug;
 			return View(model);
         }
+
+		public async Task<ActionResult> Test()
+		{
+			TokenProvider provider = new TokenProvider(_Common, HttpContext);
+			provider.SaveUserAccessCode();
+			string token = await provider.GetUserAccessTokenAsync();
+			var model = new CustomTabModel(_Common, HttpContext);
+			model.Message = token;
+			return View(model);
+		}
     }
 }
