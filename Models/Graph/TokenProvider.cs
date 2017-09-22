@@ -63,7 +63,7 @@ namespace v10CustomTabQuickStart.Models.Graph
 			}
 		}
 
-		public async Task<string> GetUserAccessTokenAsync()
+		public async Task<string> GetUserAccessTokenAsync(bool isXHR = false)
 		{
 			string token = _SessionCache.ReadUserTokenValue();
 			DateTime expiredTime = _SessionCache.ReadTokenExpirationValue();
@@ -124,7 +124,11 @@ namespace v10CustomTabQuickStart.Models.Graph
 					scope: scopes,
 					redirectUri: redirectUri,
 					state: $"{state}{_UserId}");
-				_Context.Response.Redirect(url, false);
+
+				if (!isXHR)
+				{
+					_Context.Response.Redirect(url, false);
+				}
 				throw new ServiceException(
 					new Error
 					{
@@ -132,6 +136,11 @@ namespace v10CustomTabQuickStart.Models.Graph
 						Message = "Caller needs to authenticate.",
 					});
 			}
+		}
+
+		public bool HasAccessToken()
+		{
+			return !string.IsNullOrWhiteSpace(_SessionCache.ReadUserCodeValue());
 		}
 	}
 }
