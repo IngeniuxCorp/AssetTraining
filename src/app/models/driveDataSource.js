@@ -30,16 +30,25 @@ var DriveDataSource = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(DriveDataSource.prototype, "PathList", {
+        get: function () {
+            return this._Path;
+        },
+        enumerable: true,
+        configurable: true
+    });
     DriveDataSource.prototype.NavigateToChild = function (childName) {
         this._Message.next(null);
         this._Path.push(childName);
         this._FetchPathItems();
     };
     DriveDataSource.prototype.NavigateToParent = function () {
+        this._Message.next(null);
         this._Path.pop();
         this._FetchPathItems();
     };
     DriveDataSource.prototype.NavigateToRoot = function () {
+        this._Message.next(null);
         this._Path = new Array();
         this._FetchPathItems();
     };

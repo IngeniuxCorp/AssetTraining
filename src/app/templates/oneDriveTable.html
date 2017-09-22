@@ -12,14 +12,36 @@
 		<!-- ID Column -->
 		<ng-container mdColumnDef="Type">
 			<md-header-cell *mdHeaderCellDef> Type </md-header-cell>
-			<md-cell *mdCellDef="let row"><md-icon>{{GetIcon(row)}}</md-icon></md-cell>
+			<md-cell *mdCellDef="let row"><md-icon color="primary">{{GetIcon(row)}}</md-icon></md-cell>
 		</ng-container>
 		<ng-container mdColumnDef="Name">
 			<md-header-cell *mdHeaderCellDef> Name </md-header-cell>
 			<md-cell *mdCellDef="let row"><span>{{row.Name}}</span> </md-cell>
 		</ng-container>
 
+		<ng-container mdColumnDef="Preview">
+			<md-header-cell *mdHeaderCellDef>Preview</md-header-cell>
+			<md-cell *mdCellDef="let row">
+				<button *ngIf="!row.Folder" md-mini-fab color="primary"><md-icon (click)="PreviewItem(row);$event.stopPropagation()">pageview</md-icon></button>
+			</md-cell>
+		</ng-container>
+
+		<ng-container mdColumnDef="Import">
+			<md-header-cell *mdHeaderCellDef> Import </md-header-cell>
+			<md-cell *mdCellDef="let row">
+				<button *ngIf="!row.Folder" md-mini-fab color="primary"><md-icon (click)="ImportAsset(row);$event.stopPropagation()">file_download</md-icon></button>
+			</md-cell>
+		</ng-container>
+
+		<ng-container mdColumnDef="Actions">
+			<md-header-cell *mdHeaderCellDef>
+				<button md-mini-fab (click)="DataSource.NavigateToParent();$event.stopPropagation()" [disabled]="!DataSource.PathList || DataSource.PathList.length < 1"><md-icon>subdirectory_arrow_left</md-icon></button>
+			</md-header-cell>
+			<md-cell *mdCellDef="let row">
+			</md-cell>
+		</ng-container>
+
 		<md-header-row *mdHeaderRowDef="DisplayedColumns"></md-header-row>
-		<md-row *mdRowDef="let row; columns: DisplayedColumns;" (click)="OnRowClick(row)"></md-row>
+		<md-row *mdRowDef="let row; columns: DisplayedColumns;" (click)="ViewChildren(row);$event.stopPropagation()" [ngClass]="{'folder-row': row.Folder}"></md-row>
 	</md-table>
 </div>

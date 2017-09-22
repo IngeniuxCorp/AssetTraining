@@ -18,6 +18,10 @@ export class DriveDataSource extends DataSource<any>{
 		return this._Path.join("/");
 	}
 
+	public get PathList(): Array<string> {
+		return this._Path;
+	}
+
 	public NavigateToChild(childName: string) {
 		this._Message.next(null);
 		this._Path.push(childName);
@@ -25,11 +29,13 @@ export class DriveDataSource extends DataSource<any>{
 	}
 
 	public NavigateToParent() {
+		this._Message.next(null);
 		this._Path.pop();
 		this._FetchPathItems();
 	}
 
 	public NavigateToRoot() {
+		this._Message.next(null);
 		this._Path = new Array<string>();
 		this._FetchPathItems();
 	}

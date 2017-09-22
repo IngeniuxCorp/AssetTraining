@@ -19,26 +19,38 @@ import {
 export class OneDriveTable {
 	@Input() BaseURL: string;
 	DataSource: DriveDataSource;
-	DisplayedColumns = ['Type', 'Name'];
+	DisplayedColumns = ['Type', 'Name', 'Preview', 'Import', 'Actions'];
 	State: string = "loading";
 
 	constructor(private http: Http, public dialog: MdDialog) {
 	}
 
-	OnRowClick(row: any) {
-		if (row.Folder != null) {
-			this.State = "loading";
-			console.log(row);
-			this.DataSource.NavigateToChild(row.Name);
-		}
-
+	PreviewItem(row: any) {
 		if (row.Image != null) {
 			let dialogRef = this.dialog.open(PreviewDialog, {
 				width: '450px',
-				data: { name: row.Name, url: row.WebUrl }
+				data: { Name: row.Name, URL: row.WebUrl}
 			});
-
+			return;
 		}
+
+		if (row.WebUrl) {
+			window.open(row.WebUrl, '_blank');
+		}
+	}
+
+	ViewChildren(row: any) {
+		if (row.Folder) {
+			this.State = "loading";
+			console.log(row);
+			this.DataSource.NavigateToChild(row.Name);
+			return;
+		}
+	}
+
+	ImportAsset(row: any) {
+		console.log(row);
+		return false;
 	}
 
 	GetIcon(row: any): string {

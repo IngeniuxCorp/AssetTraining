@@ -4,3 +4,27 @@
 .mat-column-Type{
 	flex: 0 0 3rem;
 }
+
+.mat-column-Import{
+	flex: 0 0 20rem;
+}
+
+.mat-column-Actions{
+	flex: 0 0 5rem;
+	text-align:center;
+}
+
+.mat-column-Preview{
+	flex: 0 0 5rem;
+	text-align:center;
+}
+
+.folder-row{
+	cursor:pointer;
+}
+
+.mat-row:hover{
+	background-color:lightgray;
+	transition:ease-out .33s
+
+}
