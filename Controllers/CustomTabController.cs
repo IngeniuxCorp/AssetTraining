@@ -29,6 +29,7 @@ namespace v10CustomTabBase.Controllers
 		public const string HEADER_VALUE = "CustomTabHeader";
 		public IUserWriteSession UserSession;
 		public CustomMessenger Messenger;
+		public TokenProvider tokenProvider;
 
 		#region Initialize and helpers
 
@@ -37,6 +38,7 @@ namespace v10CustomTabBase.Controllers
 			base.Initialize(requestContext);
 			UserSession = _Common.ContentStore.OpenWriteSession(_Common.CurrentUser);
 			Messenger = new CustomMessenger(UserSession, HEADER_VALUE);
+			tokenProvider = new TokenProvider(_Common, HttpContext);
 		}
 
 		protected override void Dispose(bool disposing)
@@ -52,11 +54,60 @@ namespace v10CustomTabBase.Controllers
 		// GET: CustomTab
 		public ActionResult Index()
         {
-			
-
 			var model = new CustomTabModel(_Common, HttpContext);
+			model.HasToken = tokenProvider.HasAccessToken();
 			return View(model);
         }
+
+		public async Task<ActionResult> SignIn()
+		{
+			var model = new CustomTabModel(_Common, HttpContext);
+			model.HasToken = tokenProvider.HasAccessToken();
+			if (model.HasToken)
+			{
+				return View("Index", model);
+			}
+
+			try
+			{
+				var token = await tokenProvider.GetUserAccessTokenAsync();
+			}
+			catch
+			{
+				model.Message = "Please Login";
+				return View();
+			}
+
+			return RedirectToAction("Index");
+		}
+
+
+		public async Task<JsonResult> GetDriveItems(string path)
+		{
+			GraphServiceClient graphClient = null;
+			graphClient = new GraphServiceClient(
+				new DelegateAuthenticationProvider(
+					async (requestMessage) =>
+					{
+						TokenProvider provider = tokenProvider;
+						string accessToken = await provider.GetUserAccessTokenAsync(true);
+
+						// Append the access token to the request.
+						requestMessage.Headers.Authorization = new AuthenticationHeaderValue("bearer", accessToken);
+					}));
+			IDriveItemChildrenCollectionPage driveChildren;
+			if (string.IsNullOrWhiteSpace(path))
+			{
+				driveChildren = await graphClient.Me.Drive.Root.Children.Request().GetAsync();
+			}
+			else
+			{
+				driveChildren = await graphClient.Me.Drive.Root.ItemWithPath(path).Children.Request().GetAsync();
+			}
+
+			return Json(driveChildren);
+		}
+
 
 		public async Task<ActionResult> Test()
 		{
@@ -68,7 +119,7 @@ namespace v10CustomTabBase.Controllers
 					new DelegateAuthenticationProvider(
 						async (requestMessage) =>
 						{
-							TokenProvider provider = new TokenProvider(_Common, HttpContext);
+							TokenProvider provider = tokenProvider;
 							string accessToken = await provider.GetUserAccessTokenAsync();
 
 							// Append the access token to the request.
@@ -88,7 +139,7 @@ namespace v10CustomTabBase.Controllers
 				return View(model);
 			}
 
-			var driveChildren = await graphClient.Me.Drive.Root.Children.Request().GetAsync();
+			var driveChildren = await graphClient.Me.Drive.Root.ItemWithPath("gg").Children.Request().GetAsync();
 			model.Message = driveChildren.Select(c => c.Name).Aggregate((cur, next) => $"{cur},{next}");
 			return View(model);
 		}
