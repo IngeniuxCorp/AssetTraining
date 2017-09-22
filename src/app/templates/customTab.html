@@ -1,1 +1,2 @@
-﻿<md-toolbar>Custom Tab</md-toolbar>
+﻿<onedrive-table [BaseURL]="BaseURL" *ngIf="HasToken"></onedrive-table>
+<a md-raised-button href="{{SignInURL}}" color="primary" *ngIf="!HasToken">Sign In to OneDrive</a>

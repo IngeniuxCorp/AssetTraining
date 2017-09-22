@@ -9,6 +9,7 @@
 		<base href="@basePath">
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 		<link rel="stylesheet" href="styles.css">
 		@if (Model.IsDebug)
 		{
@@ -20,7 +21,7 @@
 		}
 	</head>
 	<body>
-		<custom-tab BaseURL="@Model.CurrentURL">Loading AppComponent content here ...</custom-tab>
+		<custom-tab HasToken="@Model.HasToken" BaseURL="@Model.CurrentURL">Loading AppComponent content here ...</custom-tab>
 		@if (Model.IsDebug)
 		{
 			<!-- Polyfill(s) for older browsers -->

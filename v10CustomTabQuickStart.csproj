@@ -188,6 +188,9 @@
     <Content Include="Global.asax" />
     <TypeScriptCompile Include="src\app\customTab.component.ts" />
     <TypeScriptCompile Include="src\app\customTabApp.module.ts" />
+    <TypeScriptCompile Include="src\app\models\driveDataSource.ts" />
+    <TypeScriptCompile Include="src\app\oneDriveTable.component.ts" />
+    <TypeScriptCompile Include="src\app\previewDialog.component.ts" />
     <TypeScriptCompile Include="src\app\signalR.service.ts" />
     <Content Include="rollup-config.js" />
     <Content Include="Scripts\bootstrap.js" />
@@ -196,8 +199,12 @@
     <Content Include="Scripts\jquery-1.10.2.js" />
     <Content Include="Scripts\jquery-1.10.2.min.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
+    <Content Include="src\app\styles\oneDriveTable.css" />
     <Content Include="src\app\styles\customTab.css" />
+    <Content Include="src\app\styles\previewDialog.css" />
+    <Content Include="src\app\templates\oneDriveTable.html" />
     <Content Include="src\app\templates\customTab.html" />
+    <Content Include="src\app\templates\previewDialog.html" />
     <Content Include="src\build.js" />
     <Content Include="src\favicon.ico" />
     <Content Include="src\modules.js" />
@@ -218,6 +225,7 @@
     <Compile Include="Models\CustomMessage.cs" />
     <Compile Include="Models\CustomMessenger.cs" />
     <Compile Include="Models\CustomTabModel.cs" />
+    <Compile Include="Models\ErrorResponse.cs" />
     <Compile Include="Models\Graph\SessionTokenCache.cs" />
     <Compile Include="Models\Graph\TokenProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -239,6 +247,7 @@
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\CustomTab\Test.cshtml" />
     <Content Include="Scripts\jquery-1.10.2.min.map" />
+    <Content Include="Views\CustomTab\SignIn.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

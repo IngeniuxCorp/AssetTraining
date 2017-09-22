@@ -1,0 +1,25 @@
+﻿<div class="example-container mat-elevation-z8">
+	<!--<div class="example-header">
+		<md-form-field floatPlaceholder="never">
+			<input mdInput #filter placeholder="Filter users">
+		</md-form-field>
+	</div>-->
+
+	<md-table #table [dataSource]="DataSource">
+
+		<!--- Note that these columns can be defined in any order.
+			  The actual rendered columns are set as a property on the row definition" -->
+		<!-- ID Column -->
+		<ng-container mdColumnDef="Type">
+			<md-header-cell *mdHeaderCellDef> Type </md-header-cell>
+			<md-cell *mdCellDef="let row"><md-icon>{{GetIcon(row)}}</md-icon></md-cell>
+		</ng-container>
+		<ng-container mdColumnDef="Name">
+			<md-header-cell *mdHeaderCellDef> Name </md-header-cell>
+			<md-cell *mdCellDef="let row"><span>{{row.Name}}</span> </md-cell>
+		</ng-container>
+
+		<md-header-row *mdHeaderRowDef="DisplayedColumns"></md-header-row>
+		<md-row *mdRowDef="let row; columns: DisplayedColumns;" (click)="OnRowClick(row)"></md-row>
+	</md-table>
+</div>

@@ -1,6 +1,5 @@
 ﻿import { Component, Input, ElementRef } from '@angular/core';
 import { SignalRService } from './signalR.service';
-import { MdToolbarModule } from '@angular/material';
 
 @Component({
 	selector: 'custom-tab',
@@ -10,9 +9,15 @@ import { MdToolbarModule } from '@angular/material';
 })
 export class CustomTab {
 	@Input() BaseURL: string;
+	@Input() HasToken: boolean;
+
+	get SignInURL(): string {
+		return this.BaseURL + "/SignIn/"
+	}
 
 	constructor(elm: ElementRef) {
 		this.BaseURL = elm.nativeElement.getAttribute('BaseURL');
+		this.HasToken = elm.nativeElement.getAttribute('HasToken');
 	}
 
 	ngOnInit() {
