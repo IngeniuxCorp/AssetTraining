@@ -2,6 +2,7 @@
 import { Subject }    from 'rxjs/Subject';
 import { Observable }    from 'rxjs/Observable';
 
+
 @Injectable()
 export class SignalRService {
 	private _Messenger: any;
@@ -14,9 +15,10 @@ export class SignalRService {
 		window["jQuery"].connection.hub.start();
 	}
 
-	private _MessageHandler(data: string) {
-		let response = JSON.parse(data);
-		this._Message.next(response);
+	private _MessageHandler(data: any) {
+		console.log(data);
+		//let response = JSON.parse(data);
+		this._Message.next(data);
 	}
 
 }

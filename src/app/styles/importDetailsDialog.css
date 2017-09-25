@@ -1,0 +1,11 @@
+﻿body {
+}
+
+.previewDialogContent{
+	text-align:center;
+}
+
+.previewDialogImage{
+	max-height:366px;
+	max-width:366px;
+}

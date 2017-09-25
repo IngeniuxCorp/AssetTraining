@@ -1,18 +1,20 @@
 ﻿using Ingeniux.CMS;
 using Ingeniux.CMS.Models.Messaging;
 using Microsoft.Graph;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
-using v10CustomTabBase.Models;
 using v10CustomTabQuickStart.Models;
 using v10CustomTabQuickStart.Models.Graph;
+using v10CustomTabQuickStart.Models.Helpers;
 
 namespace v10CustomTabBase.Controllers
 {
@@ -28,8 +30,9 @@ namespace v10CustomTabBase.Controllers
 		//A unique value that allows the front end to filter custom messages.
 		public const string HEADER_VALUE = "CustomTabHeader";
 		public IUserWriteSession UserSession;
-		public CustomMessenger Messenger;
-		public TokenProvider tokenProvider;
+		public CustomMessengerClient Messenger;
+		public TokenProvider TokenProvider;
+		public GraphServiceClient GraphClient;
 
 		#region Initialize and helpers
 
@@ -37,8 +40,18 @@ namespace v10CustomTabBase.Controllers
 		{
 			base.Initialize(requestContext);
 			UserSession = _Common.ContentStore.OpenWriteSession(_Common.CurrentUser);
-			Messenger = new CustomMessenger(UserSession, HEADER_VALUE);
-			tokenProvider = new TokenProvider(_Common, HttpContext);
+			Messenger = new CustomMessengerClient(UserSession, HEADER_VALUE);
+			TokenProvider = new TokenProvider(_Common, HttpContext);
+			GraphClient = new GraphServiceClient(
+				new DelegateAuthenticationProvider(
+					async (requestMessage) =>
+					{
+						TokenProvider provider = TokenProvider;
+						string accessToken = await provider.GetUserAccessTokenAsync(true);
+
+						// Append the access token to the request.
+						requestMessage.Headers.Authorization = new AuthenticationHeaderValue("bearer", accessToken);
+					}));
 		}
 
 		protected override void Dispose(bool disposing)
@@ -55,14 +68,39 @@ namespace v10CustomTabBase.Controllers
 		public ActionResult Index()
         {
 			var model = new CustomTabModel(_Common, HttpContext);
-			model.HasToken = tokenProvider.HasAccessToken();
+			model.HasToken = TokenProvider.HasAccessToken();
 			return View(model);
         }
+
+		public async Task<ActionResult> SignInResponse()
+		{
+			return await Task.Run<ActionResult>(() =>
+			{
+				if (TokenProvider.HasAccessToken())
+				{
+					if (TokenProvider.IsTokenResponse())
+					{
+						Messenger.SendMessageToMe(
+							new TokenMessage()
+							{
+								IsSuccess = true
+							},
+							TokenMessage.MESSAGE_HEADER
+						);
+					}
+					return RedirectToAction("Index");
+				}
+				else
+				{
+					return RedirectToAction("SignIn");
+				}
+			});
+		}
 
 		public async Task<ActionResult> SignIn()
 		{
 			var model = new CustomTabModel(_Common, HttpContext);
-			model.HasToken = tokenProvider.HasAccessToken();
+			model.HasToken = TokenProvider.HasAccessToken();
 			if (model.HasToken)
 			{
 				return View("Index", model);
@@ -70,7 +108,7 @@ namespace v10CustomTabBase.Controllers
 
 			try
 			{
-				var token = await tokenProvider.GetUserAccessTokenAsync();
+				var token = await TokenProvider.GetUserAccessTokenAsync();
 			}
 			catch
 			{
@@ -81,67 +119,62 @@ namespace v10CustomTabBase.Controllers
 			return RedirectToAction("Index");
 		}
 
-
-		public async Task<JsonResult> GetDriveItems(string path)
+		[HttpPost]
+		public async Task<ActionResult> CreateEmailSubscription(string path)
 		{
-			GraphServiceClient graphClient = null;
-			graphClient = new GraphServiceClient(
-				new DelegateAuthenticationProvider(
-					async (requestMessage) =>
-					{
-						TokenProvider provider = tokenProvider;
-						string accessToken = await provider.GetUserAccessTokenAsync(true);
+			var subscriptions = await GraphClient.Subscriptions.Request().GetAsync();
+			subscriptions.Add(new Subscription()
+			{
+				ChangeType = "created,updated",
+				Resource = "/me/mailfolders('inbox')/messages",
+				ExpirationDateTime = DateTime.Now.AddDays(3),
+				NotificationUrl = _Common.ServerUrl,
+				
+				ClientState = JWTHelper.GetJwtToken("graph.microsoft.com", "GraphDemo", new StateData() {
+					Type = StateTypes.Email,
+					UserId = _Common.CurrentUser.UserId
+				}
+				, DateTime.Now)
+			});
+			return Content(JsonConvert.SerializeObject(true), "application/json");
+		}
 
-						// Append the access token to the request.
-						requestMessage.Headers.Authorization = new AuthenticationHeaderValue("bearer", accessToken);
-					}));
+		[HttpPost]
+		public async Task<ActionResult> GetDriveItems(string path)
+		{
 			IDriveItemChildrenCollectionPage driveChildren;
 			if (string.IsNullOrWhiteSpace(path))
 			{
-				driveChildren = await graphClient.Me.Drive.Root.Children.Request().GetAsync();
+				driveChildren = await GraphClient.Me.Drive.Root.Children.Request().GetAsync();
 			}
 			else
 			{
-				driveChildren = await graphClient.Me.Drive.Root.ItemWithPath(path).Children.Request().GetAsync();
+				driveChildren = await GraphClient.Me.Drive.Root.ItemWithPath(path).Children.Request().GetAsync();
 			}
-
-			return Json(driveChildren);
+			return Content(JsonConvert.SerializeObject(driveChildren), "application/json");
 		}
 
+		const string ASSETFOLDER_ID = "";
 
-		public async Task<ActionResult> Test()
+		[HttpPost]
+		public async Task<ActionResult> ImportDriveItem(string id, string schemaId)
 		{
-			var model = new CustomTabModel(_Common, HttpContext);
-			GraphServiceClient graphClient = null;
-			try
-			{
-				graphClient = new GraphServiceClient(
-					new DelegateAuthenticationProvider(
-						async (requestMessage) =>
-						{
-							TokenProvider provider = tokenProvider;
-							string accessToken = await provider.GetUserAccessTokenAsync();
+			//TODO: Implement this.
+			DriveItem driveItem = await GraphClient.Me.Drive.Items[id].Request().GetAsync();
+			Stream fileStream = driveItem.Content;
 
-							// Append the access token to the request.
-							requestMessage.Headers.Authorization = new AuthenticationHeaderValue("bearer", accessToken);
-						}));
-				Microsoft.Graph.User me = await graphClient.Me.Request().Select("mail,userPrincipalName").GetAsync();
-			}
-			catch
-			{
-				model.Message = "Please Login";
-				return View(model);
-			}
 
-			if(graphClient == null)
-			{
-				model.Message = "Graph is null";
-				return View(model);
-			}
 
-			var driveChildren = await graphClient.Me.Drive.Root.ItemWithPath("gg").Children.Request().GetAsync();
-			model.Message = driveChildren.Select(c => c.Name).Aggregate((cur, next) => $"{cur},{next}");
-			return View(model);
+			IAsset asset = new Asset();
+			return Content(JsonConvert.SerializeObject(asset), "application/json");
 		}
-    }
+
+		[HttpPost]
+		public ActionResult GetAssetSchemas(string fileExtention)
+		{
+			// TODO: Implement this.
+			IEnumerable<IAssetSchema> assetSchemas = new IAssetSchema[0];
+			return Content(JsonConvert.SerializeObject(assetSchemas), "application/json");
+		}
+	}
 }

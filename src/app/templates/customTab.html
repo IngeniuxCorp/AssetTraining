@@ -1,2 +1,3 @@
-﻿<onedrive-table [BaseURL]="BaseURL" *ngIf="HasToken"></onedrive-table>
-<a md-raised-button href="{{SignInURL}}" color="primary" *ngIf="!HasToken">Sign In to OneDrive</a>
+﻿<onedrive-table [BaseURL]="BaseURL" *ngIf="HasToken && !IsPopUp"></onedrive-table>
+<a md-raised-button href="{{SignInURL}}" color="primary" *ngIf="!HasToken && !IsIFrame">Sign In to OneDrive</a>
+<button md-raised-button (click)="SignInPopUp()" color="primary" *ngIf="!HasToken && IsIFrame">Sign In to OneDrive</button>

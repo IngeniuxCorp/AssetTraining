@@ -3,6 +3,7 @@ import { DriveDataSource } from './models/driveDataSource';
 import { Http } from '@angular/http';
 import {MdDialog, MdDialogRef, MD_DIALOG_DATA} from '@angular/material';
 import { PreviewDialog }from './previewDialog.component' 
+import { ImportDetailsDialog }from './importDetailsDialog.component' 
 import {
 	trigger,
 	state,
@@ -39,10 +40,17 @@ export class OneDriveTable {
 		}
 	}
 
+	ShowImportDetails(row: any) {
+		let dialogRef = this.dialog.open(ImportDetailsDialog, {
+			width: '450px',
+			data: { Row: row }
+		});
+		return;
+	}
+
 	ViewChildren(row: any) {
 		if (row.Folder) {
 			this.State = "loading";
-			console.log(row);
 			this.DataSource.NavigateToChild(row.Name);
 			return;
 		}

@@ -19,9 +19,7 @@
 		{
 			<link rel="stylesheet" href="@Model.AssetPath/Content/Styles/indigo-pink.css">
 		}
-	</head>
-	<body>
-		<custom-tab HasToken="@Model.HasToken" BaseURL="@Model.CurrentURL">Loading AppComponent content here ...</custom-tab>
+
 		@if (Model.IsDebug)
 		{
 			<!-- Polyfill(s) for older browsers -->
@@ -30,18 +28,28 @@
 			<script src="~/AppAsset/v10CustomTabBase/node_modules/zone.js/dist/zone.js"></script>
 			<script src="~/AppAsset/v10CustomTabBase/node_modules/systemjs/dist/system.src.js"></script>
 			<script src="~/AppAsset/v10CustomTabBase/src/systemjs.config.js"></script>
+			<script src="~/AppAsset/v10CustomTabBase/node_modules/jquery/dist/jquery.min.js"></script>
+			<script src="~/AppAsset/v10CustomTabBase/node_modules/signalr/jquery.signalR.js"></script>
+			<script src="~/signalr/hubs"></script>
 			<script>
-				System.import('main-jit.js').catch(function (err) { console.error(err); })
-				.then(function () {
-					return System.import('@Model.HubsPath');
-				});
+				System.import('main-jit.js').catch(function (err) { console.error(err); });
 			</script>
 		}
-		else
+
+	</head>
+	<body>
+		<script>
+			if (window.opener) {
+				window.close();
+			}
+		</script>
+		<custom-tab HasToken="@Model.HasToken" BaseURL="@Model.CurrentURL">Loading AppComponent content here ...</custom-tab>
+		
+		@if (!Model.IsDebug)
 		{
 			<script src="modules.js"></script>
-			<script src="build.js"></script>
 			<script language="javascript" src="~/signalr/hubs"></script>
+			<script src="build.js"></script>
 		}
 	</body>
 </html>

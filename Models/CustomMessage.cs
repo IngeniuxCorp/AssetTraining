@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace v10CustomTabBase.Models
+namespace v10CustomTabQuickStart.Models
 {
 	public class CustomMessage
 	{

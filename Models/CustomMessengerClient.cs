@@ -7,31 +7,34 @@ using System.IO;
 using System.Linq;
 using System.Web;
 
-namespace v10CustomTabBase.Models
+namespace v10CustomTabQuickStart.Models
 {
-	public class CustomTabMessenger : MessengerBase { }
-
-	public class CustomMessenger
+	public class CustomMessengerClient
 	{
 		private IUserWriteSession _Session;
-		private PushMessenger<CustomTabMessenger> _Messenger;
+		private PushMessenger<Messenger> _Messenger;
 		private string _Header;
 		private JsonSerializer _serializer = new JsonSerializer();
 
 		public bool EnableDebugLog = false;
 
-		public CustomMessenger(IUserWriteSession session, string messageHeader)
+
+		public CustomMessengerClient(IUserWriteSession session, string messageHeader)
 		{
 			_Session = session;
-			_Messenger = new PushMessenger<CustomTabMessenger>(_Session);
+			_Messenger = new PushMessenger<Messenger>(_Session);
 			_Header = messageHeader ?? string.Empty;
 		}
-
-		public void SendMessageToAll(object message)
+		public void SendMessageToAll(object message, string header = null)
 		{
+			if (string.IsNullOrWhiteSpace(header))
+			{
+				header = _Header;
+			}
+
 			_Messenger.SendToAll(new CustomMessage()
 			{
-				Header = _Header,
+				Header = header,
 				Message = message
 			});
 
@@ -41,11 +44,16 @@ namespace v10CustomTabBase.Models
 			}
 		}
 
-		public void SendMessageToUsers(IEnumerable<string> userIds, object message)
+		public void SendMessageToUsers(IEnumerable<string> userIds, object message, string header = null)
 		{
+			if (string.IsNullOrWhiteSpace(header))
+			{
+				header = _Header;
+			}
+
 			_Messenger.SendToUsers(new CustomMessage()
 			{
-				Header = _Header,
+				Header = header,
 				Message = message
 			}, userIds.ToArray());
 
@@ -55,11 +63,15 @@ namespace v10CustomTabBase.Models
 			}
 		}
 
-		public void SendMessageToMe(object message)
+		public void SendMessageToMe(object message, string header = null)
 		{
+			if (string.IsNullOrWhiteSpace(header))
+			{
+				header = _Header;
+			}
 			_Messenger.SendToMe(new CustomMessage()
 			{
-				Header = _Header,
+				Header = header,
 				Message = message
 			});
 

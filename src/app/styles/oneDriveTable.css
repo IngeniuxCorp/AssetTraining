@@ -23,8 +23,12 @@
 	cursor:pointer;
 }
 
+.mat-row,.mat-header-row{
+	padding-top:.25rem;
+	padding-bottom:.25rem;
+}
+
 .mat-row:hover{
 	background-color:lightgray;
 	transition:ease-out .33s
-
 }

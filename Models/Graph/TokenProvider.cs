@@ -142,5 +142,20 @@ namespace v10CustomTabQuickStart.Models.Graph
 		{
 			return !string.IsNullOrWhiteSpace(_SessionCache.ReadUserCodeValue());
 		}
+
+		public bool IsTokenResponse()
+		{
+			string stateString = _SessionCache.ReadUserStateValue();
+
+			var code = _Context.Request.Form["code"];
+			var responseState = _Context.Request.Form["state"];
+
+			if (!string.IsNullOrWhiteSpace(responseState) && responseState == $"{stateString}{_UserId}")
+			{
+				return true;
+			}
+
+			return false;
+		}
 	}
 }

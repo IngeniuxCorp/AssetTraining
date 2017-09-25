@@ -5,7 +5,7 @@
 	"description": "Quick start project for CMS custom tab dev",
 	"scripts": {
 		"build:aot": "ngc -p tsconfig-aot.json && rollup -c rollup-config.js",
-		"build:required": "uglifyjs node_modules/core-js/client/shim.min.js node_modules/zone.js/dist/zone.js --output ./src/modules.js --compress --mangle",
+		"build:required": "uglifyjs node_modules/core-js/client/shim.min.js node_modules/zone.js/dist/zone.js node_modules/jquery/dist/jquery.min.js node_modules/signalr/jquery.signalR.js --output ./src/modules.js --compress --mangle",
 		"build:css": "copyfiles -f ./node_modules/@angular/material/prebuilt-themes/indigo-pink.css ./Content/Styles",
 		"build:release": "npm run build:aot && npm run build:required && npm run build:css"
 	},
